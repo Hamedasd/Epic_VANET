@@ -34,6 +34,16 @@ class Car:
 		self.sim = None  #simulator object
 		self.neighbors = None  #neighbors of the car
 
+
+	def initialize_for_simulation(self, sim):
+		self.sim = sim
+
+		# saves the neighbors in a list for more efficient access during the simulation
+		neighbors = map(lambda x: self.sim.getCar(x), self.adj)
+		neighbors = filter(lambda x: x != None, neighbors)
+		self.neighbors = list(neighbors)
+
+
 	def modifyMsg(self, msg, msg_list):
 		#Update the message with my data
 		msg.last_emit = self.pos
@@ -63,14 +73,14 @@ class Car:
 
 		message_sent = False
 		for neighbor in self.neighbors:
-				if not message_sent:   #we are in broadcast, count one message sent independently on the number of neighbors reached
-					message_sent = True
-					self.sim.sent_messages += 1
+			if not message_sent:   #we are in broadcast, count one message sent independently on the number of neighbors reached
+				message_sent = True
+				self.sim.sent_messages += 1
 
-				if not self.sim.no_graphics:
-					if neighbor.state == State.VULNERABLE:
-						visualInfect(self, neighbor)
-				neighbor.infect(msg)
+			if not self.sim.no_graphics:
+				if neighbor.state == State.VULNERABLE:
+					visualInfect(self, neighbor)
+			neighbor.infect(msg)
 
 		if not self.sim.no_graphics:
 			sleep(0.01)
@@ -123,24 +133,25 @@ class Car:
 	# WE USED THIS
 	def evaluate_positions(self, messages, my_pos):   # 1 messaggio solo  ## valuta se mandare in broadcast o no
 
-		neighbor_positions = []   #positions of neighbors cars
+		'''neighbor_positions = []   #positions of neighbors cars
 		for c, i in zip(self.adj, range(len(self.adj))):
 			if c == 1:
 				#Ho preso la macchina corrispondente
 				obj = self.sim.getCar(i)
 				if obj != None:
-					neighbor_positions.append(obj.pos)
+					neighbor_positions.append(obj.pos)'''
 
-		n_neighbors = len(neighbor_positions)
+		n_neighbors = len(self.neighbors)
+		not_reached_neighbors = set(self.neighbors)
 
 		for m in messages:
 			for emit in m.emitters:  #per ogni emitter diversa che ha mandato il messaggio
-				for neighbor_pos in list(neighbor_positions):  #controllo se un mio vicino ha già ricevuto un messaggio da un emitter precedente
-					if in_range(neighbor_pos, emit, self.sim.rmin):
-						neighbor_positions.remove(neighbor_pos)
+				for neighbor in list(not_reached_neighbors):  #controllo se un mio vicino ha già ricevuto un messaggio da un emitter precedente
+					if in_range(neighbor.pos, emit, self.sim.rmin):
+						not_reached_neighbors.remove(neighbor)
 		
 		# return true (relay) only if there is a percentage ALPHA of uncoverd neighbors
-		return len(neighbor_positions) > Simulator.ALPHA * n_neighbors
+		return len(not_reached_neighbors) > Simulator.ALPHA * n_neighbors
 
 
 

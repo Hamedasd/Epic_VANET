@@ -36,8 +36,6 @@ class Simulator:
 
 	def __init__(self, cars):
 		self.cars = cars
-		for car in self.cars:
-			car.sim = self
 
 		self.rmin = Simulator.RMIN
 
@@ -55,6 +53,10 @@ class Simulator:
 		self.sent_messages = 0 #number of sent messages
 		self.t_last_infected = 0  #time step of the last car infected
 		self.n_hop_last_infected = 0  #number of hops of last infected car
+
+		# Initialize the car object for the simulation
+		for car in self.cars:
+			car.initialize_for_simulation(self)
 
 		# Args
 		self.no_graphics = "--no-graphics" in sys.argv
@@ -114,12 +116,17 @@ def init_cars():
 	cars = list(filter(lambda x: x != None, cars))
 	cars = get_largest_conn_component(cars)
 
-	# add list of neighbors for each car
-	car_dict = {c.plate: c for c in cars}  #car id --> car object
+	# sanity check that all neighbors list have equal length
+	length = len(cars[0].adj)
 	for car in cars:
-		car_neighbors = map(lambda x: car_dict[x] if x else None, car.adj)
+		assert(len(car.adj)==length)
+
+	# add list of neighbors for each car
+	'''car_dict = {c.plate: c for c in cars}  #car id --> car object
+	for car in cars:
+		car_neighbors = map(lambda x: car_dict[x] if x in car_dict else None, range(len(car.adj)))
 		car_neighbors = filter(lambda x: x != None, car_neighbors)
-		car.neighbors = list(car_neighbors)
+		car.neighbors = list(car_neighbors)'''
 
 	pickle.dump(cars, open(fpath, 'wb'))
 	return cars
@@ -208,6 +215,7 @@ def performSimulations(n):
 		with Pool(cpus) as pool:
 			print('[+] Starting', n, 'simulations with', cpus, 'parallel jobs')
 			sims = pool.map(performSimulation, range(n))
+		#sims = list(map(performSimulation, range(n)))
 	else:
 		sims = [ performSimulation(0) ]
 	
@@ -239,6 +247,6 @@ def performSimulations(n):
 
 if __name__ == "__main__":
 	if "--no-graphics" in sys.argv:
-		performSimulations(400)
+		performSimulations(200)
 	else:
 		performSimulations(1)
