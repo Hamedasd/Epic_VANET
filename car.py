@@ -32,6 +32,7 @@ class Car:
 		self.timer_infected = None
 		self.adj = adj
 		self.sim = None  #simulator object
+		self.neighbors = []  #neighbors of the car
 
 	def modifyMsg(self, msg, msg_list):
 		#Update the message with my data
