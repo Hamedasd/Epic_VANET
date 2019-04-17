@@ -32,7 +32,7 @@ class Car:
 		self.timer_infected = None
 		self.adj = adj
 		self.sim = None  #simulator object
-		self.neighbors = []  #neighbors of the car
+		self.neighbors = None  #neighbors of the car
 
 	def modifyMsg(self, msg, msg_list):
 		#Update the message with my data
@@ -62,20 +62,15 @@ class Car:
 			return
 
 		message_sent = False
-		for c, i in zip(self.adj, range(len(self.adj))):
-			if c == 1:
-				obj = self.sim.getCar(i)  #take the car object
-				if obj == None:
-					continue
-
-				if not message_sent:
+		for neighbor in self.neighbors:
+				if not message_sent:   #we are in broadcast, count one message sent independently on the number of neighbors reached
 					message_sent = True
 					self.sim.sent_messages += 1
 
 				if not self.sim.no_graphics:
-					if obj.state == State.VULNERABLE:
-						visualInfect(self, obj)
-				obj.infect(msg)
+					if neighbor.state == State.VULNERABLE:
+						visualInfect(self, neighbor)
+				neighbor.infect(msg)
 
 		if not self.sim.no_graphics:
 			sleep(0.01)

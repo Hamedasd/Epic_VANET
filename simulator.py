@@ -113,6 +113,14 @@ def init_cars():
 	cars = [Car(i,p,a) if p else None for i,p,a in zip(range(len(adi)),positions,adi)]   #Use as plate the index of the car
 	cars = list(filter(lambda x: x != None, cars))
 	cars = get_largest_conn_component(cars)
+
+	# add list of neighbors for each car
+	car_dict = {c.plate: c for c in cars}  #car id --> car object
+	for car in cars:
+		car_neighbors = map(lambda x: car_dict[x] if x else None, car.adj)
+		car_neighbors = filter(lambda x: x != None, car_neighbors)
+		car.neighbors = list(car_neighbors)
+
 	pickle.dump(cars, open(fpath, 'wb'))
 	return cars
 
