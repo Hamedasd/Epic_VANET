@@ -39,7 +39,7 @@ class Car:
 		self.sim = sim
 
 		# saves the neighbors in a list for more efficient access during the simulation
-		neighbors = map(lambda x: self.sim.getCar(x), self.adj)
+		neighbors = map(lambda x: self.sim.getCar(x) if self.adj[x] else None, range(len(self.adj)))
 		neighbors = filter(lambda x: x != None, neighbors)
 		self.neighbors = list(neighbors)
 

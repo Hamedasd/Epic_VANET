@@ -75,6 +75,7 @@ class Simulator:
 		#print('started sim with inf counter', self.infected_counter)
 		while self.infected_counter > 0:
 			self.t += 1
+			#print(self.t)
 			for car in self.cars:
 				if car.state == carState.INFECTED:
 					car.timer_infected -= 1
@@ -212,10 +213,10 @@ def performSimulations(n):
 
 	if n > 1:
 		cpus = 4
-		with Pool(cpus) as pool:
-			print('[+] Starting', n, 'simulations with', cpus, 'parallel jobs')
-			sims = pool.map(performSimulation, range(n))
-		#sims = list(map(performSimulation, range(n)))
+		#with Pool(cpus) as pool:
+		#	print('[+] Starting', n, 'simulations with', cpus, 'parallel jobs')
+		#	sims = pool.map(performSimulation, range(n))
+		sims = list(map(performSimulation, range(n)))
 	else:
 		sims = [ performSimulation(0) ]
 	
@@ -247,6 +248,6 @@ def performSimulations(n):
 
 if __name__ == "__main__":
 	if "--no-graphics" in sys.argv:
-		performSimulations(200)
+		performSimulations(20)
 	else:
 		performSimulations(1)
