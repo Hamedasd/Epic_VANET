@@ -24,7 +24,7 @@ def in_range(p,q,radius):	#returns true whether the distance p,q is less than ra
 
 class Car:
 	#Costruttore
-	def __init__(self, plate, pos, adj):
+	def __init__(self, plate, pos, adj, adj_id):
 		self.plate = plate
 		self.pos = pos
 		self.messages = []
@@ -32,6 +32,7 @@ class Car:
 		self.timer_infected = None
 		self.adj = adj
 		self.sim = None  #simulator object
+		self.adj_id = adj_id  #list of id of neighbor cars
 		self.neighbors = None  #neighbors of the car
 
 
@@ -39,7 +40,8 @@ class Car:
 		self.sim = sim
 
 		# saves the neighbors in a list for more efficient access during the simulation
-		neighbors = map(lambda x: self.sim.getCar(x) if self.adj[x] else None, range(len(self.adj)))
+		#neighbors = map(lambda x: self.sim.getCar(x) if self.adj[x] else None, range(len(self.adj)))
+		neighbors = map(lambda x: self.sim.getCar(x), self.adj_id)
 		neighbors = filter(lambda x: x != None, neighbors)
 		self.neighbors = list(neighbors)
 
@@ -146,7 +148,7 @@ class Car:
 
 		for m in messages:
 			for emit in m.emitters:  #per ogni emitter diversa che ha mandato il messaggio
-				for neighbor in list(not_reached_neighbors):  #controllo se un mio vicino ha già ricevuto un messaggio da un emitter precedente
+				for neighbor in set(not_reached_neighbors):  #controllo se un mio vicino ha già ricevuto un messaggio da un emitter precedente
 					if in_range(neighbor.pos, emit, self.sim.rmin):
 						not_reached_neighbors.remove(neighbor)
 		

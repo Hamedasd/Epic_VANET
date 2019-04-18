@@ -113,7 +113,11 @@ def init_cars():
 	adi = []
 	for l in a:
 		adi.append([int(n) for n in l.split(' ')])   #get the value as an int
-	cars = [Car(i,p,a) if p else None for i,p,a in zip(range(len(adi)),positions,adi)]   #Use as plate the index of the car
+	adi_id = []
+	for car_adi in adi:
+		car_adi_id = [i for i in range(len(car_adi)) if car_adi[i]]
+		adi_id.append(car_adi_id)
+	cars = [Car(i,p,a,a_id) if p else None for i,p,a,a_id in zip(range(len(adi)),positions,adi,adi_id)]   #Use as plate the index of the car
 	cars = list(filter(lambda x: x != None, cars))
 	cars = get_largest_conn_component(cars)
 
@@ -213,10 +217,10 @@ def performSimulations(n):
 
 	if n > 1:
 		cpus = 4
-		#with Pool(cpus) as pool:
-		#	print('[+] Starting', n, 'simulations with', cpus, 'parallel jobs')
-		#	sims = pool.map(performSimulation, range(n))
-		sims = list(map(performSimulation, range(n)))
+		with Pool(cpus) as pool:
+			print('[+] Starting', n, 'simulations with', cpus, 'parallel jobs')
+			sims = pool.map(performSimulation, range(n))
+		#sims = list(map(performSimulation, range(n)))
 	else:
 		sims = [ performSimulation(0) ]
 	
@@ -248,6 +252,6 @@ def performSimulations(n):
 
 if __name__ == "__main__":
 	if "--no-graphics" in sys.argv:
-		performSimulations(20)
+		performSimulations(100)
 	else:
 		performSimulations(1)
